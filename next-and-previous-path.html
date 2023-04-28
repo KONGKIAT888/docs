@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next And Previous Path</title>
+    <style>
+        span {
+            padding: 10px;
+            display: flex
+        }
+
+        button {
+            background-image: linear-gradient(#f7f8fa, #e7e9ec);
+            border-color: #adb1b8 #a2a6ac #8d9096;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 3px;
+            box-shadow: rgba(255, 255, 255, .6) 0 1px 0 inset;
+            box-sizing: border-box;
+            color: #0f1111;
+            cursor: pointer;
+            display: inline-block;
+            font-family: "Amazon Ember", Arial, sans-serif;
+            min-height: calc(1.5em + 0.5rem + 2px);
+            font-size: 13px;
+            outline: 0;
+            overflow: hidden;
+            padding: 0 11px;
+            text-align: center;
+            text-decoration: none;
+            text-overflow: ellipsis;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            white-space: nowrap;
+            width: auto;
+            margin-right: 8px;
+        }
+
+        button:active {
+            border-bottom-color: #86B7FE;
+        }
+
+        button:active:hover {
+            border-bottom-color: #86B7FE;
+        }
+
+        button:hover {
+            color: #212529;
+            background-color: #fff;
+            border-color: #86B7FE;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        button:focus {
+            color: #212529;
+            background-color: #fff;
+            border-color: #86B7FE;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        pre {
+            padding: 50px;
+            border: 1px solid #999;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <button type="button" id="btnPrevious">Previous</button>
+    <button type="button" id="btnNext">Next</button>
+    <span></span>
+    <div>
+        <pre></pre>
+    </div>
+
+</body>
+
+<script>
+
+    let level = 0;
+    const data = {
+        id: 1,
+        folder_name: "New Folder",
+        child: []
+    };
+
+    window.onload = function () {
+        document.querySelector("pre").innerHTML = JSON.stringify(data, null, 4);
+        document.querySelector("span").innerHTML = `Level : <strong>${level}</strong>`;
+    }
+    document.querySelector("#btnPrevious").addEventListener("click", () => {
+        if (level >= 0) {
+            if (level > 1) {
+                let temp = data;
+                let i = 1;
+                while (i < level) {
+                    temp = temp.child[temp.child.length - 1];
+                    i++;
+                }
+                temp.child.pop();
+            } else if (level === 1 && data.child.length > 0) {
+                data.child.pop();
+            } else if (level === 0 && data.child.length === 0) {
+                let temp = data;
+                while (temp.child.length === 0 && temp !== null) {
+                    let parent = temp;
+                    temp = temp.parent;
+                    if (temp) {
+                        let index = temp.child.findIndex(child => child.id === parent.id);
+                        if (index !== -1) {
+                            temp.child.splice(index, 1);
+                        }
+                    } else {
+                        localStorage.clear();
+                        return;
+                    }
+                }
+            }
+            level--;
+            localStorage.setItem("data", JSON.stringify(data, null, 4));
+            document.querySelector("pre").innerHTML = localStorage.getItem("data");
+            document.querySelector("span").innerHTML = `Level : <strong>${level}</strong>`;
+        }
+    });
+
+    document.querySelector("#btnNext").addEventListener("click", () => {
+        level++;
+        const rand = Math.floor(Math.random() * 100) + 1;
+        const newData = {
+            id: level + 1,
+            folder_name: `New Folder(${level + 1})`,
+            child: []
+        };
+        if (level > 1) {
+            let temp = data;
+            for (let i = 1; i < level; i++) {
+                temp = temp.child[temp.child.length - 1];
+            }
+            temp.child.push(newData);
+        } else {
+            data.child.push(newData);
+        }
+        localStorage.setItem("data", JSON.stringify(data, null, 4));
+        document.querySelector("pre").innerHTML = localStorage.getItem("data");
+        document.querySelector("span").innerHTML = `Level : <strong>${level}</strong>`;
+    });
+
+</script>
+
+</html>
