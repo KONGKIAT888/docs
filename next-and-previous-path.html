@@ -79,7 +79,79 @@
     <div>
         <pre></pre>
     </div>
+    <div>
+        <pre>
+            &lt;script&gt;
+                let level = 0;
+                const data = {
+                    id: 1,
+                    folder_name: "New Folder",
+                    child: []
+                };
 
+                window.onload = function () {
+                    document.querySelector("pre").innerHTML = JSON.stringify(data, null, 4);
+                    document.querySelector("span").innerHTML = `Level : &lt;strong&gt;${level}&lt;/strong&gt;`;
+                }
+                document.querySelector("#btnPrevious").addEventListener("click", () => {
+                    if (level >= 0) {
+                        if (level > 1) {
+                            let temp = data;
+                            let i = 1;
+                            while (i < level) {
+                                temp = temp.child[temp.child.length - 1];
+                                i++;
+                            }
+                            temp.child.pop();
+                        } else if (level === 1 && data.child.length > 0) {
+                            data.child.pop();
+                        } else if (level === 0 && data.child.length === 0) {
+                            let temp = data;
+                            while (temp.child.length === 0 && temp !== null) {
+                                let parent = temp;
+                                temp = temp.parent;
+                                if (temp) {
+                                    let index = temp.child.findIndex(child => child.id === parent.id);
+                                    if (index !== -1) {
+                                        temp.child.splice(index, 1);
+                                    }
+                                } else {
+                                    localStorage.clear();
+                                    return;
+                                }
+                            }
+                        }
+                        level--;
+                        localStorage.setItem("data", JSON.stringify(data, null, 4));
+                        document.querySelector("pre").innerHTML = localStorage.getItem("data");
+                        document.querySelector("span").innerHTML = `Level : &lt;strong&gt;${level}&lt;/strong&gt;`;
+                    }
+                });
+
+                document.querySelector("#btnNext").addEventListener("click", () => {
+                    level++;
+                    const rand = Math.floor(Math.random() * 100) + 1;
+                    const newData = {
+                        id: level + 1,
+                        folder_name: `New Folder(${level + 1})`,
+                        child: []
+                    };
+                    if (level > 1) {
+                        let temp = data;
+                        for (let i = 1; i < level; i++) {
+                            temp = temp.child[temp.child.length - 1];
+                        }
+                        temp.child.push(newData);
+                    } else {
+                        data.child.push(newData);
+                    }
+                    localStorage.setItem("data", JSON.stringify(data, null, 4));
+                    document.querySelector("pre").innerHTML = localStorage.getItem("data");
+                    document.querySelector("span").innerHTML = `Level : &lt;strong&gt;${level}&lt;/strong&gt;`;
+                });
+            &lt;/script&gt;
+        </pre>
+    </div>
 </body>
 
 <script>
